@@ -70,11 +70,24 @@ void loop() {
                "Connection: close\r\n\r\n");
   delay(10);
 
+  int waitTime=0;
+  while(!client.available()) { //wait for reply... 
+    delay(100);
+    Serial.println(".");
+    waitTime++; 
+    if(waitTime>50) { //more than five seconds have passed without http response
+              Serial.println("timeout... resetting..");
+              ESP.restart();
+              while(1);
+      }
+    } 
+
   // Read all the lines of the reply from server because that's how to do it.. right? .. TO DO: check for a flush() method.
   while(client.available()){
     line = client.readStringUntil('\r');
     linecounter++;
     if(linecounter==31) vindchillString=line.substring(53,58); //get the line with the vindchill string
+    delay(10);
   }
 
   if(line!="")
